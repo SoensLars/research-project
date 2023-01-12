@@ -1,30 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:research_navigation/components/create_ride_btn.dart';
+import 'package:research_navigation/components/location_list_item.dart';
 import 'package:research_navigation/screens/route_overview.dart';
 
-import '../components/endpoints_card.dart';
+import '../components/card_input.dart';
 
-class Search extends StatefulWidget {
-  const Search({Key? key}) : super(key: key);
+class CreateRoute extends StatefulWidget {
+  const CreateRoute({Key? key}) : super(key: key);
 
   @override
-  State<Search> createState() => _SearchState();
+  State<CreateRoute> createState() => _CreateRouteState();
 }
 
-class _SearchState extends State<Search> {
+class _CreateRouteState extends State<CreateRoute> {
   TextEditingController sourceController = TextEditingController();
   TextEditingController destinationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        physics: const ScrollPhysics(),
-        child: Column(children: [
-          endpointsCard(sourceController, destinationController),
-          createRideBtn(context)
-        ]),
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: const ScrollPhysics(),
+          child: Column(
+            children: [
+              inputField(sourceController, destinationController),
+              Column(children: [
+                LocationListItem(),
+                const Divider(
+                  color: Colors.transparent,
+                  height: 10,
+                ),
+                LocationListItem(),
+                const Divider(
+                  color: Colors.transparent,
+                  height: 10,
+                ),
+                LocationListItem(),
+                const Divider(
+                  color: Colors.transparent,
+                  height: 10,
+                ),
+                LocationListItem(),
+                const Divider(
+                  color: Colors.transparent,
+                  height: 10,
+                ),
+                LocationListItem(),                
+              ])
+            ],
+          ),
+        ),
       ),
+      floatingActionButton: createRideBtn(context),
     );
     // alignment: Alignment.bottomRight,
     // padding: const EdgeInsets.fromLTRB(0, 0, 20, 30),

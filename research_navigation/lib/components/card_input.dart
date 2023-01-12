@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'locationInputField.dart';
+import 'locations_input.dart';
 
-Widget endpointsCard(TextEditingController sourceController, TextEditingController destinationController) {
+Widget inputField(TextEditingController sourceController, TextEditingController destinationController) {
   return Card(
     elevation: 2,
     clipBehavior: Clip.antiAlias,
@@ -13,14 +13,14 @@ Widget endpointsCard(TextEditingController sourceController, TextEditingControll
         children: [
           Column(
             children: [
-              const Icon(Icons.brightness_1, size: 8),
+              const Text("A"),
               Container(
                 margin: const EdgeInsets.only(top: 3),
                 color: Colors.black,
                 width: 1,
                 height: 40,
               ),
-              const Icon(Icons.stop, size: 12),
+              const Text("B"),
             ],
           ),
           Expanded(

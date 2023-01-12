@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+
 class NavigationArPage extends StatefulWidget {
   const NavigationArPage({Key? key}) : super(key: key);
 
@@ -11,9 +12,9 @@ class _NavigationArPageState extends State<NavigationArPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('AR Navigation')),
-      body: const Text('Ar Navigation')
-      
-    );
+        appBar: AppBar(title: const Text('AR Navigation')),
+        body: Center(
+          child: const Text('AR Navigation')
+        ));
   }
 }

@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.green,
+        primarySwatch: Colors.red,
       ),
       home: const RootPage(),
     );
@@ -36,7 +36,7 @@ class _RootPageState extends State<RootPage> {
       appBar: AppBar(
         title: const Text('Create route'),
       ),
-      body: const Search(),
+      body: const CreateRoute(),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: () {
       //     debugPrint('Button clicked');
