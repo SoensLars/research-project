@@ -12,6 +12,7 @@ class _NavigationTurnPageState extends State<NavigationTurnPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Turn by turn')),
+      // ignore: prefer_const_constructors
       body: Center(
           child: const Text('Turn by turn Navigation')
         ));

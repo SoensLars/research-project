@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'locations_input.dart';
 
 Widget inputField(TextEditingController sourceController, TextEditingController destinationController) {

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 Widget LocationListItem() {
   return ListTile(
     shape: RoundedRectangleBorder(
-      //<-- SEE HERE
       borderRadius: BorderRadius.circular(10),
     ),
     leading: const SizedBox(

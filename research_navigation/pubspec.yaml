@@ -31,6 +31,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  ar_flutter_plugin: ^0.6.2
+  google_fonts:
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -44,12 +46,18 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
+  flutter_launcher_icons: ^0.9.2
   flutter_lints: ^2.0.0
 
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
 
-# The following section is specific to Flutter packages.
 flutter:
   uses-material-design: true
+
+  assets:
+    - assets/triangle.png
+    - assets/Chicken_01/
+    - assets/Arrow_01/

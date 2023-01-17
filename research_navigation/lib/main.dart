@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:research_navigation/components/create_ride_btn.dart';
 import 'package:research_navigation/screens/create_route.dart';
 
 void main() {
@@ -37,24 +36,6 @@ class _RootPageState extends State<RootPage> {
         title: const Text('Create route'),
       ),
       body: const CreateRoute(),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     debugPrint('Button clicked');
-      //   },
-      //   child: const Icon(Icons.directions_car_filled),
-      // ),
-      // bottomNavigationBar: NavigationBar(
-      //   destinations: const [
-      //     NavigationDestination(icon: Icon(Icons.home), label: 'Home'),
-      //     NavigationDestination(icon: Icon(Icons.person), label: 'Profile')
-      //   ],
-      //   onDestinationSelected: (int index) {
-      //     setState(() {
-      //       currentPage = index;
-      //     });
-      //   },
-      //   selectedIndex: currentPage,
-      // ),
     );
   }
 }
