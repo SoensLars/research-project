@@ -37,7 +37,7 @@ class _NavigationArPageState extends State<NavigationArPage> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
             SizedBox(
-              height: MediaQuery.of(context).size.height * .8,
+              height: MediaQuery.of(context).size.height * 0.8829,
               child: ClipRRect(
                 // borderRadius: BorderRadius.circular(22),
                 // child: Container(
@@ -48,37 +48,39 @@ class _NavigationArPageState extends State<NavigationArPage> {
                 ),
               ),
             ),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                      onPressed: onLocalObjectButtonPressed,
-                      child: const Text("Add / Remove Local Object")),
-                ),
-                const SizedBox(
-                  width: 10,
-                ),
-                Expanded(
-                  child: ElevatedButton(
-                      onPressed: onWebObjectAtButtonPressed,
-                      child: const Text("Add / Remove Web Object")),
-                )
-              ],
-            ),
+            // Row(
+            //   children: [
+            //     Expanded(
+            //       child: ElevatedButton(
+            //           onPressed: onLocalObjectButtonPressed,
+            //           child: const Text("Add / Remove Local Object")),
+            //     ),
+            //     const SizedBox(
+            //       width: 10,
+            //     ),
+            //     Expanded(
+            //       child: ElevatedButton(
+            //           onPressed: onWebObjectAtButtonPressed,
+            //           child: const Text("Add / Remove Web Object")),
+            //     )
+            //   ],
+            // ),
           ],
         ),
       );
     // );
   }
 
-  void onARViewCreated(
+  Future<void> onARViewCreated(
       ARSessionManager arSessionManager,
       ARObjectManager arObjectManager,
       ARAnchorManager arAnchorManager,
-      ARLocationManager arLocationManager) {
+      ARLocationManager arLocationManager,
+    ) async {
     // 1
     this.arSessionManager = arSessionManager;
     this.arObjectManager = arObjectManager;
+    // onLocalObjectButtonPressed();
     // 2
     // this.arSessionManager.onInitialize(
     //       showFeaturePoints: false,
@@ -87,12 +89,6 @@ class _NavigationArPageState extends State<NavigationArPage> {
     //       showWorldOrigin: true,
     //       handleTaps: false,
     //     );
-    // 3
-    this.arObjectManager.onInitialize();
-  }
-
-  Future<void> onLocalObjectButtonPressed() async {
-    // 1
     if (localObjectNode != null) {
       arObjectManager.removeNode(localObjectNode!);
       localObjectNode = null;
@@ -103,27 +99,49 @@ class _NavigationArPageState extends State<NavigationArPage> {
           uri: "assets/Arrow_01/scene.gltf",
           scale: Vector3(0.01, 0.01, 0.01),
           position: Vector3(0.0, 0.0, 0.0),
-          rotation: Vector4(1.0, 0.0, 0.0, 0.0)
+          rotation: Vector4(2.0, 0.0, 0.0, 0.0)
         );
       // 3
       bool? didAddLocalNode = await arObjectManager.addNode(newNode);
       localObjectNode = (didAddLocalNode!) ? newNode : null;
     }
+    // 3
+    this.arObjectManager.onInitialize();
   }
 
-  Future<void> onWebObjectAtButtonPressed() async {
-    if (webObjectNode != null) {
-      arObjectManager.removeNode(webObjectNode!);
-      webObjectNode = null;
-    } else {
-      var newNode = ARNode(
-          type: NodeType.webGLB,
-          uri:
-              "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Duck/glTF-Binary/Duck.glb",
-          scale: Vector3(0.05, 0.05, 0.05)
-          );
-      bool? didAddWebNode = await arObjectManager.addNode(newNode);
-      webObjectNode = (didAddWebNode!) ? newNode : null;
-    }
-  }
+  // Future<void> onLocalObjectButtonPressed() async {
+  //   // 1
+  //   if (localObjectNode != null) {
+  //     arObjectManager.removeNode(localObjectNode!);
+  //     localObjectNode = null;
+  //   } else {
+  //     // 2
+  //     var newNode = ARNode(
+  //         type: NodeType.localGLTF2,
+  //         uri: "assets/Arrow_01/scene.gltf",
+  //         scale: Vector3(0.01, 0.01, 0.01),
+  //         position: Vector3(0.0, 0.0, 0.0),
+  //         rotation: Vector4(1.0, 0.0, 0.0, 0.0)
+  //       );
+  //     // 3
+  //     bool? didAddLocalNode = await arObjectManager.addNode(newNode);
+  //     localObjectNode = (didAddLocalNode!) ? newNode : null;
+  //   }
+  // }
+
+  // Future<void> onWebObjectAtButtonPressed() async {
+  //   if (webObjectNode != null) {
+  //     arObjectManager.removeNode(webObjectNode!);
+  //     webObjectNode = null;
+  //   } else {
+  //     var newNode = ARNode(
+  //         type: NodeType.webGLB,
+  //         uri:
+  //             "https://github.com/KhronosGroup/glTF-Sample-Models/raw/master/2.0/Duck/glTF-Binary/Duck.glb",
+  //         scale: Vector3(0.05, 0.05, 0.05)
+  //         );
+  //     bool? didAddWebNode = await arObjectManager.addNode(newNode);
+  //     webObjectNode = (didAddWebNode!) ? newNode : null;
+  //   }
+  // }
 }
