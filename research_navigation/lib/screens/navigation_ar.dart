@@ -99,7 +99,7 @@ class _NavigationArPageState extends State<NavigationArPage> {
           uri: "assets/Arrow_01/scene.gltf",
           scale: Vector3(0.01, 0.01, 0.01),
           position: Vector3(0.0, 0.0, 0.0),
-          rotation: Vector4(2.0, 0.0, 0.0, 0.0)
+          rotation: Vector4(2.0, 0.0, 0.0, 0.0),
         );
       // 3
       bool? didAddLocalNode = await arObjectManager.addNode(newNode);
