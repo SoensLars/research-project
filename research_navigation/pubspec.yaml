@@ -44,6 +44,11 @@ dependencies:
   # arcore_flutter_plugin: ^0.0.11
   # ar_flutter_plugin: ^0.7.3
   # arkit_plugin
+  geolocator: ^7.6.2
+  geocoding: ^2.0.5
+  http:
+  uuid: ^3.0.5
+  flutter_geocoder: ^0.2.2-nullsafety
 
 dev_dependencies:
   flutter_test:

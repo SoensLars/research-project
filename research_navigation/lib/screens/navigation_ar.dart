@@ -43,9 +43,9 @@ class _NavigationArPageState extends State<NavigationArPage> {
                 // child: Container(
                 //   color: Colors.black,
                 // ),
-                child: ARView(
-                  onARViewCreated: onARViewCreated,
-                ),
+                // child: ARView(
+                //   onARViewCreated: onARViewCreated,
+                // ),
               ),
             ),
             // Row(
