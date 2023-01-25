@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:research_navigation/screens/navigation_ar.dart';
-import 'package:research_navigation/screens/map_view.dart';
+
 
 import 'dart:async';
 
@@ -14,17 +13,16 @@ import 'dart:math' show cos, sqrt, asin;
 
 import '../main.dart';
 
-class OverviewPage extends StatefulWidget {
+class MapOverview extends StatefulWidget {
   final double lat;
   final double lng;
-  final String chosenLocation;
-  OverviewPage(this.lat, this.lng, this.chosenLocation);
+  MapOverview(this.lat, this.lng);
 
   @override
-  State<OverviewPage> createState() => _OverviewPageState();
+  State<MapOverview> createState() => _MapOverviewState();
 }
 
-class _OverviewPageState extends State<OverviewPage> {
+class _MapOverviewState extends State<MapOverview> {
   final Completer<GoogleMapController?> _controller = Completer();
   Map<PolylineId, Polyline> polylines = {};
   PolylinePoints polylinePoints = PolylinePoints();
@@ -33,7 +31,6 @@ class _OverviewPageState extends State<OverviewPage> {
   loc.LocationData? _currentPosition;
   LatLng curLocation = const LatLng(50.865361, 3.299528);
   StreamSubscription<loc.LocationData>? locationSubscription;
-
   @override
   void initState() {
     super.initState();
@@ -50,100 +47,24 @@ class _OverviewPageState extends State<OverviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Route details')),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      appBar: AppBar(title: const Text('Route map overview')),
+      body: Stack(
         children: [
-          // Column 1
-          // Container(
-          //   alignment: Alignment.topCenter,
-          //   // Column 1 content goes here
-          //   child: SizedBox(
-          //       height: MediaQuery.of(context).size.height * 0.50,
-          //       child: Visibility(
-          //         visible: visibility_map,
-          //         child: GoogleMap(
-          //           zoomControlsEnabled: false,
-          //           polylines: Set<Polyline>.of(polylines.values),
-          //           initialCameraPosition: CameraPosition(
-          //             target: curLocation,
-          //             zoom: 10,
-          //           ),
-          //           markers: {sourcePosition!, destinationPosition!},
-          //           onTap: (latLng) {
-          //             print(latLng);
-          //           },
-          //           onMapCreated: (GoogleMapController controller) {
-          //             _controller.complete(controller);
-          //           },
-          //         ),
-          //       )),
-          // ),
-          // Column 2
-          Flexible(
-              flex: 1,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(10, 0, 10, 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Row(
-                      // ignore: prefer_const_literals_to_create_immutables
-                      children: [
-                        const Text("Your location"),
-                        const SizedBox(width: 8),
-                        const Icon(Icons.trending_flat, color: Colors.red),
-                        const SizedBox(width: 8),
-                        // Text("${widget.lat.toString()}, ${widget.lng.toString()}"),
-                        Text(widget.chosenLocation)
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Text(
-                            'Total distance: ${double.parse((getDistance(LatLng(widget.lat, widget.lng)).toStringAsFixed(2)))}km'),
-                      ],
-                    ),
-                    const SizedBox(height: 10),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(40),
-                      ),
-                      child: const Text('View map'),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                MapOverview(widget.lat, widget.lng)
-                        ));
-                      },
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(40),
-                      ),
-                      child: const Text('Turn by turn navigation'),
-                      onPressed: () async {
-                        await launchUrl(Uri.parse(
-                            'google.navigation:q=${widget.lat}, ${widget.lng}&key=AIzaSyAlDkKrmY4QPk4WLmdzLJFvEuCYSa2wYdg&mode=b'));
-                      },
-                    ),
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        minimumSize: const Size.fromHeight(40),
-                      ),
-                      child: const Text('AR navigation'),
-                      onPressed: () {
-                        // visibility_map = false;
-                        Navigator.of(context).push(
-                            MaterialPageRoute(builder: (BuildContext context) {
-                          return const NavigationArPage();
-                        }));
-                      },
-                    ),
-                  ],
-                ),
-              )),
+          GoogleMap(
+            zoomControlsEnabled: false,
+            polylines: Set<Polyline>.of(polylines.values),
+            initialCameraPosition: CameraPosition(
+              target: curLocation,
+              zoom: 16,
+            ),
+            markers: {sourcePosition!, destinationPosition!},
+            onTap: (latLng) {
+              print(latLng);
+            },
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+          ),
         ],
       ),
     );
