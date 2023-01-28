@@ -29,17 +29,21 @@ class _MapOverviewState extends State<MapOverview> {
   Location location = Location();
   Marker? sourcePosition, destinationPosition;
   loc.LocationData? _currentPosition;
-  LatLng curLocation = const LatLng(50.865361, 3.299528);
+  // LocationData currentLocation;
+  LatLng curLocation = const LatLng(50.85244358418761, 3.2713837540196438);
   StreamSubscription<loc.LocationData>? locationSubscription;
+
   @override
-  void initState() {
+  initState() {
     super.initState();
     getNavigation();
     addMarker();
   }
 
+  
+
   @override
-  void dispose() {
+  dispose() {
     locationSubscription?.cancel();
     super.dispose();
   }
@@ -51,7 +55,7 @@ class _MapOverviewState extends State<MapOverview> {
       body: Stack(
         children: [
           GoogleMap(
-            zoomControlsEnabled: false,
+            zoomControlsEnabled: true,
             polylines: Set<Polyline>.of(polylines.values),
             initialCameraPosition: CameraPosition(
               target: curLocation,
@@ -59,7 +63,8 @@ class _MapOverviewState extends State<MapOverview> {
             ),
             markers: {sourcePosition!, destinationPosition!},
             onTap: (latLng) {
-              print(latLng);
+              print('${widget.lat}, ${widget.lng}');
+              // print(latLng);
             },
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
@@ -98,8 +103,8 @@ class _MapOverviewState extends State<MapOverview> {
       locationSubscription =
           location.onLocationChanged.listen((LocationData currentLocation) {
         controller?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
-          target: LatLng(currentLocation.latitude!, currentLocation.longitude!),
-          zoom: 16,
+          target: LatLng(widget.lat, widget.lng),
+          zoom: 13,
         )));
         if (mounted) {
           controller
@@ -110,7 +115,7 @@ class _MapOverviewState extends State<MapOverview> {
             sourcePosition = Marker(
               markerId: MarkerId(currentLocation.toString()),
               icon: BitmapDescriptor.defaultMarkerWithHue(
-                  BitmapDescriptor.hueBlue),
+                  BitmapDescriptor.hueRed),
               position:
                   LatLng(currentLocation.latitude!, currentLocation.longitude!),
               infoWindow: InfoWindow(
@@ -134,7 +139,7 @@ class _MapOverviewState extends State<MapOverview> {
         'AIzaSyAlDkKrmY4QPk4WLmdzLJFvEuCYSa2wYdg',
         PointLatLng(curLocation.latitude, curLocation.longitude),
         PointLatLng(dst.latitude, dst.longitude),
-        travelMode: TravelMode.driving);
+        travelMode: TravelMode.bicycling);
     if (result.points.isNotEmpty) {
       result.points.forEach((PointLatLng point) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -152,13 +157,13 @@ class _MapOverviewState extends State<MapOverview> {
       polylineId: id,
       color: Colors.red,
       points: polylineCoordinates,
-      width: 5,
+      width: 8,
     );
     polylines[id] = polyline;
     setState(() {});
   }
 
-  double calculateDistance(lat1, lon1, lat2, lon2) {
+  calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
     var c = cos;
     var a = 0.5 -
@@ -167,7 +172,7 @@ class _MapOverviewState extends State<MapOverview> {
     return 12742 * asin(sqrt(a));
   }
 
-  double getDistance(LatLng destposition) {
+  getDistance(LatLng destposition) {
     return calculateDistance(curLocation.latitude, curLocation.longitude,
         destposition.latitude, destposition.longitude);
   }

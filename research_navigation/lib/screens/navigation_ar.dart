@@ -7,9 +7,12 @@ import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:ar_flutter_plugin/widgets/ar_view.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class NavigationArPage extends StatefulWidget {
-  const NavigationArPage({Key? key}) : super(key: key);
+  String direction;
+  double meter;
+  NavigationArPage(this.direction, this.meter);
 
   @override
   State<NavigationArPage> createState() => _NavigationArPageState();
@@ -21,7 +24,13 @@ class _NavigationArPageState extends State<NavigationArPage> {
   ARNode? localObjectNode;
   ARNode? webObjectNode;
 
-  String directions = "Turn right in 100m";
+  String directions = "Go 100m straight";
+  double rotationValue = 3.14 / 2;
+
+  @override
+  initState() {
+    calculateDirection();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,45 +44,52 @@ class _NavigationArPageState extends State<NavigationArPage> {
               onARViewCreated: onARViewCreated,
             ),
             Padding(
-                padding: const EdgeInsets.all(14.0),
-                // child: Container(
-                //     alignment: Alignment.topCenter,
-                //     child: SizedBox(
-                //       height: 20,
-                //       width: 250,
-                //       child: Text(
-                //         directions,
-                //         // ignore: prefer_const_constructors
-                //         style: TextStyle(
-                //           color: Colors.white,
-                //           fontSize: 16,
-                //           backgroundColor: Colors.red,
-                //         ),
-                //       ),
-                //     )),
-                child: Container(
-                    width: 250,
-                    height: 50,
-                    alignment: Alignment.topCenter,
+                padding: const EdgeInsets.fromLTRB(110, 20, 110, 0),
+                child: Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(10, 5, 10, 5),
                     decoration: BoxDecoration(
-                        shape: BoxShape.circle, color: Colors.red),
-                    child: Center(
-                      child: Text(
+                        color: Colors.red,
+                        borderRadius: BorderRadius.circular(100),
+                        // ignore: prefer_const_literals_to_create_immutables
+                        boxShadow: [
+                          const BoxShadow(
+                              color: Colors.black12,
+                              offset: Offset(5, 5),
+                              blurRadius: 10,
+                              spreadRadius: 3)
+                        ]),
+                    child: Text(
                       directions,
-                      // ignore: prefer_const_constructors
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        // backgroundColor: Colors.red,
-                      ),
+                      style: const TextStyle(color: Colors.white),
                     ),
-                    )))
+                  ),
+                ))
           ],
         ));
-    // );
   }
 
-  Future<void> onARViewCreated(
+  calculateDirection() {
+    if (widget.direction == "straight") {
+      rotationValue = 3.14 / 2;
+      directions = "Go ${widget.meter.round()}m straight";
+    }
+
+    if (widget.direction == "left") {
+      rotationValue = 3.14;
+      directions = "Turn left in ${widget.meter.round()}m";
+    }
+
+    if (widget.direction == "right") {
+      rotationValue = 0;
+      directions = "Turn right in ${widget.meter.round()}m";
+    }
+  }
+
+  onARViewCreated(
     ARSessionManager arSessionManager,
     ARObjectManager arObjectManager,
     ARAnchorManager arAnchorManager,
@@ -85,13 +101,15 @@ class _NavigationArPageState extends State<NavigationArPage> {
       arObjectManager.removeNode(localObjectNode!);
       localObjectNode = null;
     } else {
+      vector.Matrix3 matrix = vector.Matrix3.rotationZ(rotationValue);
       var newNode = ARNode(
         type: NodeType.localGLTF2,
         uri: "assets/Arrow_01/scene.gltf",
         scale: vector.Vector3(0.01, 0.01, 0.01),
         position: vector.Vector3(0.0, 0.0, 0.0),
-        rotation: vector.Vector4(2.0, 0.0, 0.0, 0.0),
+        rotation: vector.Vector4(1.0, 0.0, 0.0, 0.0),
       );
+      newNode.rotation = matrix;
       bool? didAddLocalNode = await arObjectManager.addNode(newNode);
       localObjectNode = (didAddLocalNode!) ? newNode : null;
     }

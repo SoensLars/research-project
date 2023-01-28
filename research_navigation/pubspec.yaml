@@ -49,6 +49,8 @@ dependencies:
   http:
   uuid: ^3.0.5
   flutter_geocoder: ^0.2.2-nullsafety
+  internet_connection_checker: ^0.0.1+4
+  connectivity_plus: ^2.3.5
 
 dev_dependencies:
   flutter_test:

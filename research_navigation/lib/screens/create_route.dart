@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:location/location.dart';
 import 'package:research_navigation/screens/route_overview.dart';
 import 'package:uuid/uuid.dart';
 import 'package:http/http.dart' as http;
@@ -16,16 +16,22 @@ class CreateRoute extends StatefulWidget {
 class _CreateRouteState extends State<CreateRoute> {
   TextEditingController latController = TextEditingController();
   TextEditingController lngController = TextEditingController();
-
-  String destinationController = "";
   final TextEditingController _controller = TextEditingController();
+  String destinationController = "";
+  
   var uuid = const Uuid();
   String _sessionToken = '122344';
   List<dynamic> _placesList = [];
+
   bool enabled = false;
+  bool viewPlaceholder = true;
+
+  late StreamSubscription connection;
+  var connectionAvailable = false;
+  bool popupAlert = false;
 
   @override
-  void initState() {
+  initState() {
     super.initState();
 
     _controller.addListener(() {
@@ -33,7 +39,7 @@ class _CreateRouteState extends State<CreateRoute> {
     });
   }
 
-  void onChange() {
+  onChange() {
     if (_sessionToken == null) {
       setState(() {
         _sessionToken = uuid.v4();
@@ -41,12 +47,17 @@ class _CreateRouteState extends State<CreateRoute> {
     }
     if (_controller.text.isEmpty) {
       enabled = false;
+      viewPlaceholder = false;
+    }
+
+    if (_controller.text.isNotEmpty) {
+      print(_controller);
     }
 
     getSuggestion(_controller.text);
   }
 
-  void getSuggestion(String input) async {
+  getSuggestion(String input) async {
     String PLACES_API_KEY = "AIzaSyAlDkKrmY4QPk4WLmdzLJFvEuCYSa2wYdg";
     String request =
         "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$PLACES_API_KEY&sessiontoken=$_sessionToken";
@@ -55,9 +66,6 @@ class _CreateRouteState extends State<CreateRoute> {
     var response = await http.get(Uri.parse(request));
     var data = response.body.toString();
 
-    // print('data');
-    // print(data);
-
     if (response.statusCode == 200) {
       setState(() {
         _placesList = jsonDecode(response.body.toString())['predictions'];
@@ -65,7 +73,7 @@ class _CreateRouteState extends State<CreateRoute> {
     } else {
       throw Exception('Failed to load suggestions');
     }
-  }
+  } 
 
   @override
   Widget build(BuildContext context) {
@@ -110,55 +118,62 @@ class _CreateRouteState extends State<CreateRoute> {
                 ),
               ),
             ),
+            // ignore: prefer_const_constructors
             Expanded(
-              child: ListView.builder(
-                  itemCount: _placesList.length,
-                  itemBuilder: (context, index) {
-                    return Column(
-                      children: [
-                        const Divider(
-                          color: Colors.transparent,
-                          height: 12,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(12, 4, 12, 4),
-                          child: ListTile(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            onTap: () async {
-                              var locations = await locationFromAddress(
-                                  _placesList[index]['description']);
-                              lngController.text =
-                                  locations.last.longitude.toString();
-                              latController.text =
-                                  locations.last.latitude.toString();
-                              destinationController = _placesList[index]
-                                  ['structured_formatting']['main_text'];
-                              _controller.text =
-                                  _placesList[index]['description'];
-                              enabled = true;
-                            },
-                            leading: const SizedBox(
-                              height: 400,
-                              child: CircleAvatar(
-                                child: Icon(Icons.location_on),
+                child: !viewPlaceholder
+                    ? ListView.builder(
+                        itemCount: _placesList.length,
+                        itemBuilder: (context, index) {
+                          return Column(
+                            children: [
+                              const Divider(
+                                color: Colors.transparent,
+                                height: 12,
                               ),
-                            ),
-                            title: Text(
-                                _placesList[index]['structured_formatting']
-                                    ['main_text'],
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold)),
-                            tileColor: Colors.grey[200],
-                            subtitle: Text(
-                                '${_placesList[index]['structured_formatting']['secondary_text']}'),
-                          ),
-                        )
-                      ],
-                    );
-                  }),
-            )
+                              Padding(
+                                padding:
+                                    const EdgeInsets.fromLTRB(12, 4, 12, 4),
+                                child: ListTile(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  onTap: () async {
+                                    var locations = await locationFromAddress(
+                                        _placesList[index]['description']);
+                                    lngController.text =
+                                        locations.last.longitude.toString();
+                                    latController.text =
+                                        locations.last.latitude.toString();
+                                    destinationController = _placesList[index]
+                                        ['structured_formatting']['main_text'];
+                                    _controller.text =
+                                        _placesList[index]['description'];
+                                    enabled = true;
+                                  },
+                                  leading: const SizedBox(
+                                    height: 400,
+                                    child: CircleAvatar(
+                                      child: Icon(Icons.location_on),
+                                    ),
+                                  ),
+                                  title: Text(
+                                      _placesList[index]
+                                              ['structured_formatting']
+                                          ['main_text'],
+                                      style: const TextStyle(
+                                          fontWeight: FontWeight.bold)),
+                                  tileColor: Colors.grey[200],
+                                  subtitle: Text(
+                                      '${_placesList[index]['structured_formatting']['secondary_text']}'),
+                                ),
+                              )
+                            ],
+                          );
+                        })
+                    // ignore: prefer_const_constructors
+                    : Center(
+                        child: const Text('Search a destination in de box.'),
+                      ))
           ],
         ),
         // ignore: prefer_const_constructors
@@ -168,13 +183,13 @@ class _CreateRouteState extends State<CreateRoute> {
                 ? () => {
                       Navigator.of(context).push(MaterialPageRoute(
                           builder: (context) => OverviewPage(
-                              double.parse(latController.text),
-                              double.parse(lngController.text),
-                              (destinationController).toString())))
+                                double.parse(latController.text),
+                                double.parse(lngController.text),
+                                (destinationController).toString(),
+                              )))
                     }
                 : null,
-            label: const Text('Create route')));
+            label: const Text('Create route'),
+            backgroundColor: enabled ? Colors.red : Colors.grey[400]));
   }
 }
-
-buttonEnabledDisabled() {}
