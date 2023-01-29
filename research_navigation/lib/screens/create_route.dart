@@ -18,7 +18,7 @@ class _CreateRouteState extends State<CreateRoute> {
   TextEditingController lngController = TextEditingController();
   final TextEditingController _controller = TextEditingController();
   String destinationController = "";
-  
+
   var uuid = const Uuid();
   String _sessionToken = '122344';
   List<dynamic> _placesList = [];
@@ -73,7 +73,11 @@ class _CreateRouteState extends State<CreateRoute> {
     } else {
       throw Exception('Failed to load suggestions');
     }
-  } 
+  }
+
+  clearText() {
+    _controller.clear();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,9 +108,13 @@ class _CreateRouteState extends State<CreateRoute> {
                                   const EdgeInsets.symmetric(horizontal: 10),
                               child: TextField(
                                 controller: _controller,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
                                   border: OutlineInputBorder(),
                                   labelText: 'Destination',
+                                  suffixIcon: IconButton(
+                                    icon: Icon(Icons.clear),
+                                    onPressed: clearText
+                                  ),
                                 ),
                               ),
                             ),
@@ -172,7 +180,7 @@ class _CreateRouteState extends State<CreateRoute> {
                         })
                     // ignore: prefer_const_constructors
                     : Center(
-                        child: const Text('Search a destination in de box.'),
+                        child: const Text('Search a destination in the box.'),
                       ))
           ],
         ),

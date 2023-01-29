@@ -24,24 +24,25 @@ class OverviewPage extends StatefulWidget {
 }
 
 class _OverviewPageState extends State<OverviewPage> {
-  final Completer<GoogleMapController?> _controller = Completer();
-  Map<PolylineId, Polyline> polylines = {};
-  PolylinePoints polylinePoints = PolylinePoints();
-  Location location = Location();
-  Marker? sourcePosition, destinationPosition;
-  loc.LocationData? _currentPosition;
-  LatLng curLocation = const LatLng(50.85244358418761, 3.2713837540196438);
-  StreamSubscription<loc.LocationData>? locationSubscription;
+  // final Completer<GoogleMapController?> _controller = Completer();
+  // Map<PolylineId, Polyline> polylines = {};
+  // PolylinePoints polylinePoints = PolylinePoints();
+  // Location location = Location();
+  // Marker? sourcePosition, destinationPosition;
+  // loc.LocationData? _currentPosition;
+  LatLng curLocation = const LatLng(50.865094039590204, 3.299591975093855);
+  // StreamSubscription<loc.LocationData>? locationSubscription;
   double time = 0;
 
   @override
   initState() {
+    super.initState();
     calculateTime();
   }
 
   @override
   dispose() {
-    locationSubscription?.cancel();
+    // locationSubscription?.cancel();
     super.dispose();
   }
 
@@ -173,7 +174,7 @@ class _OverviewPageState extends State<OverviewPage> {
                       onPressed: () {
                         Navigator.of(context).push(
                             MaterialPageRoute(builder: (BuildContext context) {
-                          return NavigationArPage("straight", 100);
+                          return NavigationArPage("straight", 300);
                         }));
                       },
                     ),
@@ -204,8 +205,8 @@ class _OverviewPageState extends State<OverviewPage> {
     }
   }
 
-  getDistance(LatLng destposition) {
+  getDistance(LatLng destination) {
     return calculateDistance(curLocation.latitude, curLocation.longitude,
-        destposition.latitude, destposition.longitude);
+        destination.latitude, destination.longitude);
   }
 }

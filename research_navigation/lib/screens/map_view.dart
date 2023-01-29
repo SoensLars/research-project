@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
-
-
 import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:location/location.dart' as loc;
 import 'package:location/location.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'dart:math' show cos, sqrt, asin;
-
-import '../main.dart';
 
 class MapOverview extends StatefulWidget {
   final double lat;
   final double lng;
-  MapOverview(this.lat, this.lng);
+  const MapOverview(this.lat, this.lng, {super.key});
 
   @override
   State<MapOverview> createState() => _MapOverviewState();
@@ -29,8 +22,7 @@ class _MapOverviewState extends State<MapOverview> {
   Location location = Location();
   Marker? sourcePosition, destinationPosition;
   loc.LocationData? _currentPosition;
-  // LocationData currentLocation;
-  LatLng curLocation = const LatLng(50.85244358418761, 3.2713837540196438);
+  LatLng curLocation = const LatLng(50.865094039590204, 3.299591975093855);
   StreamSubscription<loc.LocationData>? locationSubscription;
 
   @override
@@ -38,9 +30,7 @@ class _MapOverviewState extends State<MapOverview> {
     super.initState();
     getNavigation();
     addMarker();
-  }
-
-  
+  }  
 
   @override
   dispose() {
@@ -62,10 +52,6 @@ class _MapOverviewState extends State<MapOverview> {
               zoom: 16,
             ),
             markers: {sourcePosition!, destinationPosition!},
-            onTap: (latLng) {
-              print('${widget.lat}, ${widget.lng}');
-              // print(latLng);
-            },
             onMapCreated: (GoogleMapController controller) {
               _controller.complete(controller);
             },
@@ -76,27 +62,27 @@ class _MapOverviewState extends State<MapOverview> {
   }
 
   getNavigation() async {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
+    bool serviceEnabled;
+    PermissionStatus permissionGranted;
     final GoogleMapController? controller = await _controller.future;
     location.changeSettings(accuracy: loc.LocationAccuracy.high);
-    _serviceEnabled = await location.serviceEnabled();
+    serviceEnabled = await location.serviceEnabled();
 
-    if (!_serviceEnabled) {
-      _serviceEnabled = await location.requestService();
-      if (!_serviceEnabled) {
+    if (!serviceEnabled) {
+      serviceEnabled = await location.requestService();
+      if (!serviceEnabled) {
         return;
       }
     }
 
-    _permissionGranted = await location.hasPermission();
-    if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
-      if (_permissionGranted != PermissionStatus.granted) {
+    permissionGranted = await location.hasPermission();
+    if (permissionGranted == PermissionStatus.denied) {
+      permissionGranted = await location.requestPermission();
+      if (permissionGranted != PermissionStatus.granted) {
         return;
       }
     }
-    if (_permissionGranted == loc.PermissionStatus.granted) {
+    if (permissionGranted == loc.PermissionStatus.granted) {
       _currentPosition = await location.getLocation();
       curLocation =
           LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
@@ -121,9 +107,6 @@ class _MapOverviewState extends State<MapOverview> {
               infoWindow: InfoWindow(
                   title:
                       '${double.parse((getDistance(LatLng(widget.lat, widget.lng)).toStringAsFixed(2)))} km'),
-              onTap: () {
-                print('market tapped');
-              },
             );
           });
           getDirections(LatLng(widget.lat, widget.lng));
@@ -141,10 +124,10 @@ class _MapOverviewState extends State<MapOverview> {
         PointLatLng(dst.latitude, dst.longitude),
         travelMode: TravelMode.bicycling);
     if (result.points.isNotEmpty) {
-      result.points.forEach((PointLatLng point) {
+      for (var point in result.points) {
         polylineCoordinates.add(LatLng(point.latitude, point.longitude));
         points.add({'lat': point.latitude, 'lng': point.longitude});
-      });
+      }
     } else {
       print(result.errorMessage);
     }
@@ -152,7 +135,7 @@ class _MapOverviewState extends State<MapOverview> {
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {
-    PolylineId id = PolylineId('poly');
+    PolylineId id = const PolylineId('poly');
     Polyline polyline = Polyline(
       polylineId: id,
       color: Colors.red,
@@ -180,12 +163,12 @@ class _MapOverviewState extends State<MapOverview> {
   addMarker() {
     setState(() {
       sourcePosition = Marker(
-        markerId: MarkerId('source'),
+        markerId: const MarkerId('Your location'),
         position: curLocation,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       );
       destinationPosition = Marker(
-        markerId: MarkerId('destination'),
+        markerId: const MarkerId('Destination'),
         position: LatLng(widget.lat, widget.lng),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       );
