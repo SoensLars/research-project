@@ -9,28 +9,32 @@ import 'dart:math' show cos, sqrt, asin;
 class MapOverview extends StatefulWidget {
   final double lat;
   final double lng;
-  const MapOverview(this.lat, this.lng, {super.key});
+  final double locationLat;
+  final double locationLng;
+  const MapOverview(this.lat, this.lng, this.locationLat, this.locationLng,
+      {super.key});
 
   @override
   State<MapOverview> createState() => _MapOverviewState();
 }
 
 class _MapOverviewState extends State<MapOverview> {
-  final Completer<GoogleMapController?> _controller = Completer();
+  final Completer<GoogleMapController?> mapController = Completer();
   Map<PolylineId, Polyline> polylines = {};
   PolylinePoints polylinePoints = PolylinePoints();
   Location location = Location();
-  Marker? sourcePosition, destinationPosition;
-  loc.LocationData? _currentPosition;
-  LatLng curLocation = const LatLng(50.865094039590204, 3.299591975093855);
+  Marker? yourLocation, destinationLocation;
+  loc.LocationData? currentPosition;
+  LatLng curLocation = const LatLng(0, 0);
   StreamSubscription<loc.LocationData>? locationSubscription;
 
   @override
   initState() {
     super.initState();
+    getLocation();
     getNavigation();
     addMarker();
-  }  
+  }
 
   @override
   dispose() {
@@ -51,9 +55,9 @@ class _MapOverviewState extends State<MapOverview> {
               target: curLocation,
               zoom: 16,
             ),
-            markers: {sourcePosition!, destinationPosition!},
+            markers: {yourLocation!, destinationLocation!},
             onMapCreated: (GoogleMapController controller) {
-              _controller.complete(controller);
+              mapController.complete(controller);
             },
           ),
         ],
@@ -63,8 +67,8 @@ class _MapOverviewState extends State<MapOverview> {
 
   getNavigation() async {
     bool serviceEnabled;
-    PermissionStatus permissionGranted;
-    final GoogleMapController? controller = await _controller.future;
+    PermissionStatus permissionRequest;
+    final GoogleMapController? controller = await mapController.future;
     location.changeSettings(accuracy: loc.LocationAccuracy.high);
     serviceEnabled = await location.serviceEnabled();
 
@@ -75,30 +79,30 @@ class _MapOverviewState extends State<MapOverview> {
       }
     }
 
-    permissionGranted = await location.hasPermission();
-    if (permissionGranted == PermissionStatus.denied) {
-      permissionGranted = await location.requestPermission();
-      if (permissionGranted != PermissionStatus.granted) {
+    permissionRequest = await location.hasPermission();
+    if (permissionRequest == PermissionStatus.denied) {
+      permissionRequest = await location.requestPermission();
+      if (permissionRequest != PermissionStatus.granted) {
         return;
       }
     }
-    if (permissionGranted == loc.PermissionStatus.granted) {
-      _currentPosition = await location.getLocation();
+    if (permissionRequest == loc.PermissionStatus.granted) {
+      currentPosition = await location.getLocation();
       curLocation =
-          LatLng(_currentPosition!.latitude!, _currentPosition!.longitude!);
+          LatLng(currentPosition!.latitude!, currentPosition!.longitude!);
       locationSubscription =
           location.onLocationChanged.listen((LocationData currentLocation) {
         controller?.animateCamera(CameraUpdate.newCameraPosition(CameraPosition(
           target: LatLng(widget.lat, widget.lng),
-          zoom: 13,
+          zoom: 12,
         )));
         if (mounted) {
           controller
-              ?.showMarkerInfoWindow(MarkerId(sourcePosition!.markerId.value));
+              ?.showMarkerInfoWindow(MarkerId(yourLocation!.markerId.value));
           setState(() {
             curLocation =
                 LatLng(currentLocation.latitude!, currentLocation.longitude!);
-            sourcePosition = Marker(
+            yourLocation = Marker(
               markerId: MarkerId(currentLocation.toString()),
               icon: BitmapDescriptor.defaultMarkerWithHue(
                   BitmapDescriptor.hueRed),
@@ -119,7 +123,7 @@ class _MapOverviewState extends State<MapOverview> {
     List<LatLng> polylineCoordinates = [];
     List<dynamic> points = [];
     PolylineResult result = await polylinePoints.getRouteBetweenCoordinates(
-        'AIzaSyAlDkKrmY4QPk4WLmdzLJFvEuCYSa2wYdg',
+        'YOUR_KEY',
         PointLatLng(curLocation.latitude, curLocation.longitude),
         PointLatLng(dst.latitude, dst.longitude),
         travelMode: TravelMode.bicycling);
@@ -132,6 +136,10 @@ class _MapOverviewState extends State<MapOverview> {
       print(result.errorMessage);
     }
     addPolyLine(polylineCoordinates);
+  }
+
+  getLocation() {
+    curLocation = LatLng(widget.locationLat, widget.locationLng);
   }
 
   addPolyLine(List<LatLng> polylineCoordinates) {
@@ -162,12 +170,12 @@ class _MapOverviewState extends State<MapOverview> {
 
   addMarker() {
     setState(() {
-      sourcePosition = Marker(
+      yourLocation = Marker(
         markerId: const MarkerId('Your location'),
         position: curLocation,
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
       );
-      destinationPosition = Marker(
+      destinationLocation = Marker(
         markerId: const MarkerId('Destination'),
         position: LatLng(widget.lat, widget.lng),
         icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),

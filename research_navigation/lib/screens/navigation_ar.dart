@@ -7,12 +7,10 @@ import 'package:ar_flutter_plugin/models/ar_node.dart';
 import 'package:ar_flutter_plugin/widgets/ar_view.dart';
 import 'package:vector_math/vector_math_64.dart' as vector;
 import 'package:flutter/material.dart';
-// import 'dart:math';
-
 class NavigationArPage extends StatefulWidget {
   String direction;
   double meter;
-  NavigationArPage(this.direction, this.meter);
+  NavigationArPage(this.direction, this.meter, {super.key});
 
   @override
   State<NavigationArPage> createState() => _NavigationArPageState();
@@ -29,6 +27,7 @@ class _NavigationArPageState extends State<NavigationArPage> {
 
   @override
   initState() {
+    super.initState();
     calculateDirection();
   }
 

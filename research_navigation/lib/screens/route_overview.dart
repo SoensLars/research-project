@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:research_navigation/screens/navigation_ar.dart';
 import 'package:research_navigation/screens/map_view.dart';
-
-import 'dart:async';
-import 'package:geolocator/geolocator.dart';
-
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:flutter_polyline_points/flutter_polyline_points.dart';
-import 'package:location/location.dart' as loc;
 import 'package:location/location.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:math' show cos, sqrt, asin;
@@ -17,33 +10,21 @@ class OverviewPage extends StatefulWidget {
   final double lat;
   final double lng;
   final String chosenLocation;
-  OverviewPage(this.lat, this.lng, this.chosenLocation);
+  const OverviewPage(this.lat, this.lng, this.chosenLocation, {super.key});
 
   @override
   State<OverviewPage> createState() => _OverviewPageState();
 }
 
 class _OverviewPageState extends State<OverviewPage> {
-  // final Completer<GoogleMapController?> _controller = Completer();
-  // Map<PolylineId, Polyline> polylines = {};
-  // PolylinePoints polylinePoints = PolylinePoints();
-  // Location location = Location();
-  // Marker? sourcePosition, destinationPosition;
-  // loc.LocationData? _currentPosition;
-  LatLng curLocation = const LatLng(50.865094039590204, 3.299591975093855);
-  // StreamSubscription<loc.LocationData>? locationSubscription;
+  LatLng curLocation = const LatLng(0, 0);
   double time = 0;
+  bool showDistTime = false;
 
   @override
   initState() {
     super.initState();
-    calculateTime();
-  }
-
-  @override
-  dispose() {
-    // locationSubscription?.cancel();
-    super.dispose();
+    getLocation();
   }
 
   @override
@@ -55,7 +36,6 @@ class _OverviewPageState extends State<OverviewPage> {
         children: [
           Container(
               alignment: Alignment.topCenter,
-              // Column 1 content goes here
               child: Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
@@ -89,10 +69,10 @@ class _OverviewPageState extends State<OverviewPage> {
                         ),
                         Row(
                           children: [
-                            Container(
+                            const SizedBox(
                               height: 55,
                               width: 55,
-                              child: const CircleAvatar(
+                              child: CircleAvatar(
                                   child: Icon(Icons.flag, size: 30.0)),
                             ),
                             const SizedBox(width: 15),
@@ -110,13 +90,21 @@ class _OverviewPageState extends State<OverviewPage> {
                       children: [
                         const Text('Distance from point to point',
                             style: TextStyle(fontSize: 18)),
-                        Text(
-                          '${double.parse((getDistance(LatLng(widget.lat, widget.lng)).toStringAsFixed(2)))} km',
-                          style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold),
-                        )
+                        showDistTime
+                            ? Text(
+                                '${double.parse((getDistance(LatLng(widget.lat, widget.lng)).toStringAsFixed(2)))} km',
+                                style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.bold),
+                              )
+                            : const Text(
+                                'Calculating...',
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.bold),
+                              )
                       ],
                     ),
                     const SizedBox(height: 30),
@@ -125,13 +113,21 @@ class _OverviewPageState extends State<OverviewPage> {
                       children: [
                         const Text('Estimated time',
                             style: TextStyle(fontSize: 18)),
-                        Text(
-                          "${time.round()}min",
-                          style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 36,
-                              fontWeight: FontWeight.bold),
-                        )
+                        showDistTime
+                            ? Text(
+                                "${time.round()}min",
+                                style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.bold),
+                              )
+                            : const Text(
+                                "Calculating...",
+                                style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.bold),
+                              )
                       ],
                     )
                   ],
@@ -140,7 +136,7 @@ class _OverviewPageState extends State<OverviewPage> {
           Flexible(
               flex: 1,
               child: Padding(
-                padding: EdgeInsets.fromLTRB(10, 0, 10, 20),
+                padding: const EdgeInsets.fromLTRB(10, 0, 10, 20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -150,10 +146,12 @@ class _OverviewPageState extends State<OverviewPage> {
                       ),
                       child: const Text('View detailed route'),
                       onPressed: () {
-                        print('${widget.lat}, ${widget.lng}');
                         Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) =>
-                                MapOverview(widget.lat, widget.lng)));
+                            builder: (context) => MapOverview(
+                                widget.lat,
+                                widget.lng,
+                                curLocation.latitude,
+                                curLocation.longitude)));
                       },
                     ),
                     ElevatedButton(
@@ -163,7 +161,7 @@ class _OverviewPageState extends State<OverviewPage> {
                       child: const Text('Turn by turn navigation'),
                       onPressed: () async {
                         await launchUrl(Uri.parse(
-                            'google.navigation:q=${widget.lat}, ${widget.lng}&key=AIzaSyAlDkKrmY4QPk4WLmdzLJFvEuCYSa2wYdg&mode=b'));
+                            'google.navigation:q=${widget.lat}, ${widget.lng}&key=YOUR_KEY&mode=b'));
                       },
                     ),
                     ElevatedButton(
@@ -174,7 +172,7 @@ class _OverviewPageState extends State<OverviewPage> {
                       onPressed: () {
                         Navigator.of(context).push(
                             MaterialPageRoute(builder: (BuildContext context) {
-                          return NavigationArPage("straight", 300);
+                          return NavigationArPage("right", 100);
                         }));
                       },
                     ),
@@ -184,7 +182,7 @@ class _OverviewPageState extends State<OverviewPage> {
         ],
       ),
     );
-  }  
+  }
 
   calculateDistance(lat1, lon1, lat2, lon2) {
     var p = 0.017453292519943295;
@@ -199,10 +197,20 @@ class _OverviewPageState extends State<OverviewPage> {
     var calculatedTime = getDistance(LatLng(widget.lat, widget.lng)) * 4.5;
     if (calculatedTime < 1) {
       time = 1;
-    }
-    else {
+    } else {
       time = calculatedTime;
     }
+  }
+
+  getLocation() async {
+    var location = Location();
+    var currentLocation = await location.getLocation();
+    setState(() {
+      curLocation =
+          LatLng(currentLocation.latitude!, currentLocation.longitude!);
+      calculateTime();
+      showDistTime = true;
+    });
   }
 
   getDistance(LatLng destination) {

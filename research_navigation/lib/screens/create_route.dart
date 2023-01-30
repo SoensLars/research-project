@@ -16,7 +16,7 @@ class CreateRoute extends StatefulWidget {
 class _CreateRouteState extends State<CreateRoute> {
   TextEditingController latController = TextEditingController();
   TextEditingController lngController = TextEditingController();
-  final TextEditingController _controller = TextEditingController();
+  TextEditingController inputController = TextEditingController();
   String destinationController = "";
 
   var uuid = const Uuid();
@@ -34,7 +34,7 @@ class _CreateRouteState extends State<CreateRoute> {
   initState() {
     super.initState();
 
-    _controller.addListener(() {
+    inputController.addListener(() {
       onChange();
     });
   }
@@ -45,20 +45,20 @@ class _CreateRouteState extends State<CreateRoute> {
         _sessionToken = uuid.v4();
       });
     }
-    if (_controller.text.isEmpty) {
+    if (inputController.text.isEmpty) {
       enabled = false;
       viewPlaceholder = false;
     }
 
-    if (_controller.text.isNotEmpty) {
-      print(_controller);
+    if (inputController.text.isNotEmpty) {
+      print(inputController);
     }
 
-    getSuggestion(_controller.text);
+    getSuggestion(inputController.text);
   }
 
   getSuggestion(String input) async {
-    String PLACES_API_KEY = "AIzaSyAlDkKrmY4QPk4WLmdzLJFvEuCYSa2wYdg";
+    String PLACES_API_KEY = "YOUR_KEY";
     String request =
         "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=$input&key=$PLACES_API_KEY&sessiontoken=$_sessionToken";
 
@@ -76,7 +76,7 @@ class _CreateRouteState extends State<CreateRoute> {
   }
 
   clearText() {
-    _controller.clear();
+    inputController.clear();
   }
 
   @override
@@ -107,14 +107,13 @@ class _CreateRouteState extends State<CreateRoute> {
                               padding:
                                   const EdgeInsets.symmetric(horizontal: 10),
                               child: TextField(
-                                controller: _controller,
+                                controller: inputController,
                                 decoration: InputDecoration(
-                                  border: OutlineInputBorder(),
+                                  border: const OutlineInputBorder(),
                                   labelText: 'Destination',
                                   suffixIcon: IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: clearText
-                                  ),
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: clearText),
                                 ),
                               ),
                             ),
@@ -154,9 +153,11 @@ class _CreateRouteState extends State<CreateRoute> {
                                         locations.last.latitude.toString();
                                     destinationController = _placesList[index]
                                         ['structured_formatting']['main_text'];
-                                    _controller.text =
+                                    inputController.text =
                                         _placesList[index]['description'];
                                     enabled = true;
+                                    FocusManager.instance.primaryFocus
+                                        ?.unfocus();
                                   },
                                   leading: const SizedBox(
                                     height: 400,
