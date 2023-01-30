@@ -112,7 +112,7 @@ class _CreateRouteState extends State<CreateRoute> {
                                   border: OutlineInputBorder(),
                                   labelText: 'Destination',
                                   suffixIcon: IconButton(
-                                    icon: Icon(Icons.clear),
+                                    icon: const Icon(Icons.clear),
                                     onPressed: clearText
                                   ),
                                 ),

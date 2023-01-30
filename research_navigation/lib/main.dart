@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -49,17 +48,63 @@ class _RootPageState extends State<RootPage> {
   }
 
   checkConnectivity() {
-    connection = Connectivity().onConnectivityChanged.listen(
-      (ConnectivityResult result) async {
-        connectionAvailable = await InternetConnectionChecker().hasConnection;
-        if (!connectionAvailable && popupAlert == false) {
-          showPopup();
-          setState((() => popupAlert = true));
-        }
+    connection = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) async {
+      connectionAvailable = await InternetConnectionChecker().hasConnection;
+      if (!connectionAvailable && popupAlert == false) {
+        showPopup();
+        setState((() => popupAlert = true));
       }
+    });
+  }
+
+  showPopup() {
+    showDialog<String>(
+      context: context,
+      builder: (BuildContext context) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  children: const [
+                    Text(
+                      'No network connection',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      height: 6,
+                    ),
+                    Text('Please check your internet connectivity.'),
+                  ],
+                ),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(context, 'Cancel');
+                  setState(() => popupAlert = false);
+                  connectionAvailable =
+                      await InternetConnectionChecker().hasConnection;
+                  if (!connectionAvailable && popupAlert == false) {
+                    showPopup();
+                    setState(() => popupAlert = true);
+                  }
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
-  } 
-  
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,27 +114,4 @@ class _RootPageState extends State<RootPage> {
       body: const CreateRoute(),
     );
   }
-
-  showPopup() => showCupertinoDialog<String>(
-        context: context,
-        builder: (BuildContext context) => CupertinoAlertDialog(
-          title: const Text('No Connection'),
-          content: const Text('Please check your internet connectivity'),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-                Navigator.pop(context, 'Cancel');
-                setState(() => popupAlert = false);
-                connectionAvailable =
-                    await InternetConnectionChecker().hasConnection;
-                if (!connectionAvailable && popupAlert == false) {
-                  showPopup();
-                  setState(() => popupAlert = true);
-                }
-              },
-              child: const Text('OK'),
-            ),
-          ],
-        ),
-      );
 }
